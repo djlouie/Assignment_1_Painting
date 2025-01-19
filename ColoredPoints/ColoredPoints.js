@@ -70,10 +70,16 @@ function connectVariablesToGLSL(){
     }
 }
 
+// Constants
+const POINT = 0;
+const TRIANGLE = 1;
+const CIRCLE = 2;
 
 // Globals related to UI elements
 let g_selectedColor = [1.0, 1.0, 1.0, 1.0];
 let g_selectedSize = 5;
+let g_selectedType = POINT;
+let g_selectedSegments = 10;
 
 // Set up actions for the HTML UI elements
 function addActionsForHtmlUI(){
@@ -83,13 +89,18 @@ function addActionsForHtmlUI(){
     document.getElementById('red').onclick = function() {g_selectedColor = [1.0, 0.0, 0.0, 1.0]; };
     document.getElementById('clear').onclick = function() {g_shapesList = []; renderAllShapes(); };
 
+    document.getElementById('pointButton').onclick = function() {g_selectedType = POINT};
+    document.getElementById('triButton').onclick = function() {g_selectedType = TRIANGLE};
+    document.getElementById('circleButton').onclick = function() {g_selectedType = CIRCLE};
+
     // Color Slider Events
     document.getElementById('redSlide').addEventListener('mouseup', function() { g_selectedColor[0] = this.value/100; });
     document.getElementById('greenSlide').addEventListener('mouseup', function() { g_selectedColor[1] = this.value/100; });
     document.getElementById('blueSlide').addEventListener('mouseup', function() { g_selectedColor[2] = this.value/100; });
 
-    // Size Slider Events
+    // Size + Segments Slider Events
     document.getElementById('sizeSlide').addEventListener('mouseup', function() { g_selectedSize = this.value; })
+    document.getElementById('segmentsSlide').addEventListener('mouseup', function() { g_selectedSegments = this.value; })
 }
 
 function main() {
@@ -165,10 +176,22 @@ function click(ev) {
     let [x, y] = convertCoordinateEventsToGL(ev);
 
     // Create and store the new point
-    let point = new Point();
+    let point;
+    if (g_selectedType == POINT){
+        point = new Point();
+    } else if (g_selectedType == TRIANGLE) {
+        point = new Triangle();
+    } else {
+        point = new Circle()
+    }
     point.position = [x, y];
     point.color = g_selectedColor.slice();
     point.size = g_selectedSize;
+
+    if (g_selectedType == CIRCLE){
+        point.segments = g_selectedSegments;
+    }
+
     g_shapesList.push(point);
 
     // // Store the coordinates to g_points array

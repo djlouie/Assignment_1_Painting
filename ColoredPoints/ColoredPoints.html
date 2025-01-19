@@ -19,6 +19,12 @@
         </div>
 
         <div>
+            <button type="button" id="pointButton">Point</button>
+            <button type="button" id="triButton">Triangle</button>
+            <button type="button" id="circleButton">Circle</button>
+        </div>
+
+        <div>
             Red <input type="range" min="0" max="100" value="100" class="slider" id="redSlide">
         </div>
 
@@ -34,10 +40,16 @@
             Size <input type="range" min="0" max="40" value="5" class="slider" id="sizeSlide">
         </div>
 
+        <div>
+            Segments <input type="range" min="3" max="40" value="10" class="slider" id="segmentsSlide">
+        </div>
+
         <script src="../lib/webgl-utils.js"></script>
         <script src="../lib/webgl-debug.js"></script>
         <script src="../lib/cuon-utils.js"></script>
         <script src="ColoredPoints.js"></script>
         <script src="Points.js"></script>
+        <script src="Triangle.js"></script>
+        <script src="Circle.js"></script>
     </body>
 </html>

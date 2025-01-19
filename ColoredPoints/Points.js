@@ -15,6 +15,10 @@ class Point{
         // var rgba = g_shapesList[i].color;
         // var size = g_shapesList[i].size;
 
+        // Quit using the buffer to send the attribute
+        gl.disableVertexAttribArray(a_Position);
+        // gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([xy[0], xy[1]]), gl.DYNAMIC_DRAW);
+
         // Pass the position of a point to a_Position variable
         gl.vertexAttrib3f(a_Position, xy[0], xy[1], 0.0);
 
