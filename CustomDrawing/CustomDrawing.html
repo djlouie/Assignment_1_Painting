@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Change a point color</title>
+    </head>
+
+    <body onload="main()">
+        <canvas id="webgl" width="400" height="400">
+        Please use a browser that supports "canvas"
+        </canvas>
+
+        <img src="T-rex.jpg" alt="T-rex" height="400">
+
+        <div>
+            Size X: <input type="range" min="0" max="40" value="16" class="slider" id="sizeXSlide">
+            Size Y: <input type="range" min="0" max="40" value="18" class="slider" id="sizeYSlide">
+        </div>
+
+        <div>
+            <button type="button" id="draw">Draw!</button>
+        </div>
+
+        <script src="../lib/webgl-utils.js"></script>
+        <script src="../lib/webgl-debug.js"></script>
+        <script src="../lib/cuon-utils.js"></script>
+        <script src="CustomDrawing.js"></script>
+        <script src="CustomTriangle.js"></script>
+    </body>
+</html>

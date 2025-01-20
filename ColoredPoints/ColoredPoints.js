@@ -85,8 +85,27 @@ let g_selectedSegments = 10;
 function addActionsForHtmlUI(){
 
     // Button Events (Shape Type)
-    document.getElementById('green').onclick = function() {g_selectedColor = [0.0, 1.0, 0.0, 1.0]; };
-    document.getElementById('red').onclick = function() {g_selectedColor = [1.0, 0.0, 0.0, 1.0]; };
+    document.getElementById('red').onclick = function() {
+        g_selectedColor = [1.0, 0.0, 0.0, 1.0];
+        let redSlide = document.getElementById('redSlide');
+        let greenSlide = document.getElementById('greenSlide');
+        let blueSlide = document.getElementById('blueSlide');
+        [redSlide.value, greenSlide.value, blueSlide.value] = [redSlide.max, 0.0, 0.0];
+    };
+    document.getElementById('green').onclick = function() {
+        g_selectedColor = [0.0, 1.0, 0.0, 1.0];
+        let redSlide = document.getElementById('redSlide');
+        let greenSlide = document.getElementById('greenSlide');
+        let blueSlide = document.getElementById('blueSlide');
+        [redSlide.value, greenSlide.value, blueSlide.value] = [0.0, greenSlide.max, 0.0];
+    };
+    document.getElementById('blue').onclick = function() {
+        g_selectedColor = [0.0, 0.0, 1.0, 1.0];
+        let redSlide = document.getElementById('redSlide');
+        let greenSlide = document.getElementById('greenSlide');
+        let blueSlide = document.getElementById('blueSlide');
+        [redSlide.value, greenSlide.value, blueSlide.value] = [0.0, 0.0, blueSlide.max];
+    };
     document.getElementById('clear').onclick = function() {g_shapesList = []; renderAllShapes(); };
 
     document.getElementById('pointButton').onclick = function() {g_selectedType = POINT};

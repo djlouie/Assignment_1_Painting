@@ -13,10 +13,12 @@
         <p id="numdot"> XXX </p>
 
         <div>
-            <button type="button" id="green">Green</button>
-            <button type="button" id="red">Red</button>
             <button type="button" id="clear">Clear</button>
         </div>
+
+        <p>
+            Drawing Mode:
+        </p>
 
         <div>
             <button type="button" id="pointButton">Point</button>
@@ -24,24 +26,33 @@
             <button type="button" id="circleButton">Circle</button>
         </div>
 
+        <p>
+            Shape Color:
+        </p>
+
         <div>
             Red <input type="range" min="0" max="100" value="100" class="slider" id="redSlide">
-        </div>
-
-        <div>
             Green <input type="range" min="0" max="100" value="100" class="slider" id="greenSlide">
-        </div>
-
-        <div>
             Blue <input type="range" min="0" max="100" value="100" class="slider" id="blueSlide">
         </div>
 
-        <div>
-            Size <input type="range" min="0" max="40" value="5" class="slider" id="sizeSlide">
-        </div>
+        <p>
+            Shape Color Shortcuts:
+        </p>
 
         <div>
-            Segments <input type="range" min="3" max="40" value="10" class="slider" id="segmentsSlide">
+            <button type="button" id="red">Red</button>
+            <button type="button" id="green">Green</button>
+            <button type="button" id="blue">Blue</button>
+        </div>
+
+        <p>
+            Additional Customization:
+        </p>
+
+        <div>
+            Size <input type="range" min="0" max="40" value="5" class="slider" id="sizeSlide">
+            Segment Count (Circles) <input type="range" min="3" max="40" value="10" class="slider" id="segmentsSlide">
         </div>
 
         <script src="../lib/webgl-utils.js"></script>
