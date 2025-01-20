@@ -17,7 +17,7 @@ class Circle{
         
         
         // Draw
-        var d = this.size/200.0;  // delta
+        var d = size/200.0;  // delta
         
         // Calculate and draw the triangles that make up the circle
         let angleStep = 360/this.segments;
