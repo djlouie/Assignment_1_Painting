@@ -33,11 +33,16 @@ function setupWebGL(){
     // Get the rendering context for WebGL
     // gl = getWebGLContext(canvas);
     // Added flag to tell webgl which buffer to preserve
-    gl = canvas.getContext("webgl", { preserveDrawingBuffer: true });
+    gl = canvas.getContext("webgl", { preserveDrawingBuffer: true, premultipliedAlpha: false });
     if (!gl) {
         console.log('Failed to get the rendering context for WebGL');
         return;
     }
+    
+    // Enable Blending So That The Alpha Works Correctly (Learned this from ChatGPT)
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
 }
 
 // Get attributes from the GPU
@@ -86,21 +91,21 @@ function addActionsForHtmlUI(){
 
     // Button Events (Shape Type)
     document.getElementById('red').onclick = function() {
-        g_selectedColor = [1.0, 0.0, 0.0, 1.0];
+        g_selectedColor = [1.0, 0.0, 0.0, g_selectedColor[3]];
         let redSlide = document.getElementById('redSlide');
         let greenSlide = document.getElementById('greenSlide');
         let blueSlide = document.getElementById('blueSlide');
-        [redSlide.value, greenSlide.value, blueSlide.value] = [redSlide.max, 0.0, 0.0];
+        [redSlide.value, greenSlide.value, blueSlide.value, ] = [redSlide.max, 0.0, 0.0];
     };
     document.getElementById('green').onclick = function() {
-        g_selectedColor = [0.0, 1.0, 0.0, 1.0];
+        g_selectedColor = [0.0, 1.0, 0.0, g_selectedColor[3]];
         let redSlide = document.getElementById('redSlide');
         let greenSlide = document.getElementById('greenSlide');
         let blueSlide = document.getElementById('blueSlide');
         [redSlide.value, greenSlide.value, blueSlide.value] = [0.0, greenSlide.max, 0.0];
     };
     document.getElementById('blue').onclick = function() {
-        g_selectedColor = [0.0, 0.0, 1.0, 1.0];
+        g_selectedColor = [0.0, 0.0, 1.0, g_selectedColor[3]];
         let redSlide = document.getElementById('redSlide');
         let greenSlide = document.getElementById('greenSlide');
         let blueSlide = document.getElementById('blueSlide');
@@ -119,6 +124,7 @@ function addActionsForHtmlUI(){
 
     // Size + Segments Slider Events
     document.getElementById('sizeSlide').addEventListener('mouseup', function() { g_selectedSize = this.value; })
+    document.getElementById('alphaSlide').addEventListener('mouseup', function() { g_selectedColor[3] = this.value; })
     document.getElementById('segmentsSlide').addEventListener('mouseup', function() { g_selectedSegments = this.value; })
 }
 
