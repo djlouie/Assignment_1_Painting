@@ -113,6 +113,12 @@ function addActionsForHtmlUI(){
         [redSlide.value, greenSlide.value, blueSlide.value] = [0.0, 0.0, blueSlide.max];
     };
     document.getElementById('clear').onclick = function() {g_shapesList = []; renderAllShapes(); };
+    document.getElementById('customDrawing').onclick = function() {
+        let point = new TRex(); point.position = [0, 0]; point.color = [1.0, 1.0, 1.0, 1.0]; point.size = 25; 
+        g_shapesList = [point]; 
+        renderAllShapes(); 
+    };
+
 
     document.getElementById('pointButton').onclick = function() {g_selectedType = POINT};
     document.getElementById('triButton').onclick = function() {g_selectedType = TRIANGLE};
