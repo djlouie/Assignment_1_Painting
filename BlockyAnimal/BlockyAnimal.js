@@ -102,64 +102,80 @@ const TRIANGLE = 1;
 const CIRCLE = 2;
 const TREX = 3;
 
-// Globals related to UI elements
+// Globals related to UI elements (Make sure they are the same as the slider initials)
 let g_selectedColor = [1.0, 1.0, 1.0, 1.0];
 let g_selectedSize = 5;
 let g_selectedType = POINT;
 let g_selectedSegments = 10;
 let g_globalAngle = 5;
+let g_yellowAngle = 0;
+let g_magentaAngle = 0;
+let g_yellowAnimation = false;
+let g_magentaAnimation = false;
 
 // Set up actions for the HTML UI elements
 function addActionsForHtmlUI(){
 
-    // Button Events (Shape Type)
-    document.getElementById('red').onclick = function() {
-        g_selectedColor = [1.0, 0.0, 0.0, g_selectedColor[3]];
-        let redSlide = document.getElementById('redSlide');
-        let greenSlide = document.getElementById('greenSlide');
-        let blueSlide = document.getElementById('blueSlide');
-        [redSlide.value, greenSlide.value, blueSlide.value, ] = [redSlide.max, 0.0, 0.0];
-    };
-    document.getElementById('green').onclick = function() {
-        g_selectedColor = [0.0, 1.0, 0.0, g_selectedColor[3]];
-        let redSlide = document.getElementById('redSlide');
-        let greenSlide = document.getElementById('greenSlide');
-        let blueSlide = document.getElementById('blueSlide');
-        [redSlide.value, greenSlide.value, blueSlide.value] = [0.0, greenSlide.max, 0.0];
-    };
-    document.getElementById('blue').onclick = function() {
-        g_selectedColor = [0.0, 0.0, 1.0, g_selectedColor[3]];
-        let redSlide = document.getElementById('redSlide');
-        let greenSlide = document.getElementById('greenSlide');
-        let blueSlide = document.getElementById('blueSlide');
-        [redSlide.value, greenSlide.value, blueSlide.value] = [0.0, 0.0, blueSlide.max];
-    };
-    document.getElementById('clear').onclick = function() {g_shapesList = []; renderAllShapes(); };
-    document.getElementById('customDrawing').onclick = function() {
-        let point = new TRex(); point.position = [0, 0]; point.color = [1.0, 1.0, 1.0, 1.0]; point.size = 25; 
-        g_shapesList = [point]; 
-        renderAllShapes(); 
-    };
+    // // Button Events (Shape Type)
+    // document.getElementById('red').onclick = function() {
+    //     g_selectedColor = [1.0, 0.0, 0.0, g_selectedColor[3]];
+    //     let redSlide = document.getElementById('redSlide');
+    //     let greenSlide = document.getElementById('greenSlide');
+    //     let blueSlide = document.getElementById('blueSlide');
+    //     [redSlide.value, greenSlide.value, blueSlide.value, ] = [redSlide.max, 0.0, 0.0];
+    // };
+    // document.getElementById('green').onclick = function() {
+    //     g_selectedColor = [0.0, 1.0, 0.0, g_selectedColor[3]];
+    //     let redSlide = document.getElementById('redSlide');
+    //     let greenSlide = document.getElementById('greenSlide');
+    //     let blueSlide = document.getElementById('blueSlide');
+    //     [redSlide.value, greenSlide.value, blueSlide.value] = [0.0, greenSlide.max, 0.0];
+    // };
+    // document.getElementById('blue').onclick = function() {
+    //     g_selectedColor = [0.0, 0.0, 1.0, g_selectedColor[3]];
+    //     let redSlide = document.getElementById('redSlide');
+    //     let greenSlide = document.getElementById('greenSlide');
+    //     let blueSlide = document.getElementById('blueSlide');
+    //     [redSlide.value, greenSlide.value, blueSlide.value] = [0.0, 0.0, blueSlide.max];
+    // };
+    // document.getElementById('clear').onclick = function() {g_shapesList = []; renderAllShapes(); };
+    // document.getElementById('customDrawing').onclick = function() {
+    //     let point = new TRex(); point.position = [0, 0]; point.color = [1.0, 1.0, 1.0, 1.0]; point.size = 25; 
+    //     g_shapesList = [point]; 
+    //     renderAllShapes(); 
+    // };
 
 
-    document.getElementById('pointButton').onclick = function() {g_selectedType = POINT};
-    document.getElementById('triButton').onclick = function() {g_selectedType = TRIANGLE};
-    document.getElementById('circleButton').onclick = function() {g_selectedType = CIRCLE};
-    document.getElementById('trexButton').onclick = function() {g_selectedType = TREX};
+    // document.getElementById('pointButton').onclick = function() {g_selectedType = POINT};
+    // document.getElementById('triButton').onclick = function() {g_selectedType = TRIANGLE};
+    // document.getElementById('circleButton').onclick = function() {g_selectedType = CIRCLE};
+    // document.getElementById('trexButton').onclick = function() {g_selectedType = TREX};
 
-    // Color Slider Events
-    document.getElementById('redSlide').addEventListener('mouseup', function() { g_selectedColor[0] = this.value/100; });
-    document.getElementById('greenSlide').addEventListener('mouseup', function() { g_selectedColor[1] = this.value/100; });
-    document.getElementById('blueSlide').addEventListener('mouseup', function() { g_selectedColor[2] = this.value/100; });
+    // // Color Slider Events
+    // document.getElementById('redSlide').addEventListener('mouseup', function() { g_selectedColor[0] = this.value/100; });
+    // document.getElementById('greenSlide').addEventListener('mouseup', function() { g_selectedColor[1] = this.value/100; });
+    // document.getElementById('blueSlide').addEventListener('mouseup', function() { g_selectedColor[2] = this.value/100; });
+
+    // Button Events
+    document.getElementById('animationYellowOffButton').onclick = function() {g_yellowAnimation=false;};
+    document.getElementById('animationYellowOnButton').onclick = function() {g_yellowAnimation=true;};
+    document.getElementById('animationMagentaOffButton').onclick = function() {g_magentaAnimation=false;};
+    document.getElementById('animationMagentaOnButton').onclick = function() {g_magentaAnimation=true;};
+
+    // Magenta Slider Events
+    document.getElementById('magentaSlide').addEventListener('mousemove', function() { g_magentaAngle = this.value; renderAllShapes();})
+
+    // Yellow Slider Events
+    document.getElementById('yellowSlide').addEventListener('mousemove', function() { g_yellowAngle = this.value; renderAllShapes();})
 
     // Angle Slider Events
     // document.getElementById('angleSlide').addEventListener('mouseup', function() { g_globalAngle = this.value; } );
     document.getElementById('angleSlide').addEventListener('mousemove', function() { g_globalAngle = this.value; renderAllShapes(); } );
 
-    // Size + Segments Slider Events
-    document.getElementById('sizeSlide').addEventListener('mouseup', function() { g_selectedSize = this.value; })
-    document.getElementById('alphaSlide').addEventListener('mouseup', function() { g_selectedColor[3] = this.value; })
-    document.getElementById('segmentsSlide').addEventListener('mouseup', function() { g_selectedSegments = this.value; })
+    // // Size + Segments Slider Events
+    // document.getElementById('sizeSlide').addEventListener('mouseup', function() { g_selectedSize = this.value; })
+    // document.getElementById('alphaSlide').addEventListener('mouseup', function() { g_selectedColor[3] = this.value; })
+    // document.getElementById('segmentsSlide').addEventListener('mouseup', function() { g_selectedSegments = this.value; })
 }
 
 function main() {
@@ -181,7 +197,27 @@ function main() {
 
     // Clear <canvas>
     // gl.clear(gl.COLOR_BUFFER_BIT);
+    // renderAllShapes();
+    requestAnimationFrame(tick);
+}
+
+var g_startTime = performance.now() / 1000.0;
+var g_seconds = performance.now() / 1000.0 - g_startTime;
+
+// Called by the browser repeatedly whenever its time
+function tick() {
+    // Print some debug information so we know we are running
+    g_seconds = performance.now() / 1000.0 - g_startTime;
+    console.log(performance.now());
+
+    // Update Animation Angles
+    updateAnimationAngles();
+
+    // Draw Everything
     renderAllShapes();
+
+    // Tell the browser to update again when it has the time
+    requestAnimationFrame(tick);
 }
 
 // Extract the event click and change it to webGL coordinates
@@ -194,6 +230,17 @@ function convertCoordinateEventsToGL(ev){
     y = (canvas.height/2 - (y - rect.top))/(canvas.height/2);
 
     return ([x, y]);
+}
+
+// Update the angles of everything if currently animated
+function updateAnimationAngles() {
+    if (g_yellowAnimation) {
+        g_yellowAngle = (45*Math.sin(g_seconds));
+    }
+
+    if (g_magentaAnimation) {
+        g_magentaAngle = (45*Math.sin(3 *g_seconds));
+    }
 }
 
 // Draw every shape that is supposed to be in the canvas
@@ -218,23 +265,36 @@ function renderAllShapes(){
     body.matrix.scale(0.5, .3, .5);
     body.render();
 
-    // Draw a left arm
-    var leftArm = new Cube();
-    leftArm.color = [1, 1, 0, 1];
-    leftArm.matrix.setTranslate(0, -.5, 0.0);
-    leftArm.matrix.rotate(-5, 1, 0, 0);
-    leftArm.matrix.rotate(0, 0, 0, 1);
-    leftArm.matrix.scale(0.25, .7, .5);
-    leftArm.matrix.translate(-.5, 0, 0);
-    leftArm.render();
+    // Draw Yellow
+    var yellow = new Cube();
+    yellow.color = [1, 1, 0, 1];
+    yellow.matrix.setTranslate(0, -.5, 0.0);
+    yellow.matrix.rotate(-5, 1, 0, 0);
 
-    // Test Box
-    var box = new Cube();
-    box.color = [1, 0, 1, 1];
-    box.matrix.translate(-.1, .1, 0, 0);
-    box.matrix.rotate(-30, 1, 0, 0);
-    box.matrix.scale(.2, .4, .2);
-    box.render();
+    yellow.matrix.rotate(-g_yellowAngle, 0, 0, 1);
+
+    // if (g_yellowAnimation){
+    //     yellow.matrix.rotate(45 * Math.sin(g_seconds), 0, 0, 1);
+    // } else {
+    //     yellow.matrix.rotate(-g_yellowAngle, 0, 0, 1);
+    // }
+    
+    var yellowCoordinatesMat = new Matrix4(yellow.matrix);
+    yellow.matrix.scale(0.25, .7, .5);
+    yellow.matrix.translate(-.5, 0, 0);
+    yellow.render();
+
+    // Test Magenta
+    var magenta = new Cube();
+    magenta.color = [1, 0, 1, 1];
+    magenta.matrix = yellowCoordinatesMat;
+    magenta.matrix.translate(0, 0.65, 0);
+    magenta.matrix.rotate(g_magentaAngle, 0, 0, 1);
+    magenta.matrix.rotate(0, 1, 0, 0);
+    magenta.matrix.scale(.3, .3, .3);
+    // preventing z fighting due to floating point precision errors with a very small displacement
+    magenta.matrix.translate(-.5, 0, -0.001);
+    magenta.render();
 
 
     // Check the time at the end of the function, and show on webpage
