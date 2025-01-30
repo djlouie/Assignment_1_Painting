@@ -3,11 +3,10 @@
 // Vertex shader program
 var VSHADER_SOURCE = `
     attribute vec4 a_Position;
-    uniform float u_Size;
+    uniform mat4 u_ModelMatrix;
+    uniform mat4 u_GlobalRotateMatrix;
     void main() {
-        gl_Position = a_Position;
-        // gl_PointSize = 10.0;
-        gl_PointSize = u_Size;
+        gl_Position = u_GlobalRotateMatrix * u_ModelMatrix * a_Position;
     }`;
 
 // Fragment shader program
@@ -23,7 +22,9 @@ let canvas;
 let gl;
 let a_Position;
 let u_FragColor;
-let u_Size
+let u_Size;
+let u_ModelMatrix;
+let u_GlobalRotateMatrix;
 
 // Setup GL context
 function setupWebGL(){
@@ -38,6 +39,9 @@ function setupWebGL(){
         console.log('Failed to get the rendering context for WebGL');
         return;
     }
+
+    // Enable Depth Buffer to Keep Track of What is In Front of Sopmething else
+    gl.enable(gl.DEPTH_TEST);
     
     // Enable Blending So That The Alpha Works Correctly (Learned this from ChatGPT)
     gl.enable(gl.BLEND);
@@ -53,7 +57,7 @@ function connectVariablesToGLSL(){
         return;
     }
 
-    // // Get the storage location of a_Position
+    // Get the storage location of a_Position
     a_Position = gl.getAttribLocation(gl.program, 'a_Position');
     if (a_Position < 0) {
         console.log('Failed to get the storage location of a_Position');
@@ -67,12 +71,29 @@ function connectVariablesToGLSL(){
         return;
     }
 
-    // Get the storage location of u_Size
-    u_Size = gl.getUniformLocation(gl.program, 'u_Size');
-    if (!u_Size) {
-        console.log('Failed to get the storage location of u_Size');
+    // // Get the storage location of u_Size
+    // u_Size = gl.getUniformLocation(gl.program, 'u_Size');
+    // if (!u_Size) {
+    //     console.log('Failed to get the storage location of u_Size');
+    //     return;
+    // }
+
+    // Get the storage location of u_ModelMatrix
+    u_ModelMatrix = gl.getUniformLocation(gl.program, 'u_ModelMatrix');
+    if (!u_ModelMatrix) {
+        console.log('Failed to get the storage location of u_ModelMatrix');
         return;
     }
+    // Get the storage location of u_GlobalRotateMatrix
+    u_GlobalRotateMatrix = gl.getUniformLocation(gl.program, 'u_GlobalRotateMatrix');
+    if (!u_GlobalRotateMatrix) {
+        console.log('Failed to get the storage location of u_GlobalRotateMatrix');
+        return;
+    }
+
+    // Set an initial value for this matrix to identity
+    var identityM = new Matrix4();
+    gl.uniformMatrix4fv(u_ModelMatrix, false, identityM.elements);
 }
 
 // Constants
@@ -86,6 +107,7 @@ let g_selectedColor = [1.0, 1.0, 1.0, 1.0];
 let g_selectedSize = 5;
 let g_selectedType = POINT;
 let g_selectedSegments = 10;
+let g_globalAngle = 5;
 
 // Set up actions for the HTML UI elements
 function addActionsForHtmlUI(){
@@ -130,6 +152,10 @@ function addActionsForHtmlUI(){
     document.getElementById('greenSlide').addEventListener('mouseup', function() { g_selectedColor[1] = this.value/100; });
     document.getElementById('blueSlide').addEventListener('mouseup', function() { g_selectedColor[2] = this.value/100; });
 
+    // Angle Slider Events
+    // document.getElementById('angleSlide').addEventListener('mouseup', function() { g_globalAngle = this.value; } );
+    document.getElementById('angleSlide').addEventListener('mousemove', function() { g_globalAngle = this.value; renderAllShapes(); } );
+
     // Size + Segments Slider Events
     document.getElementById('sizeSlide').addEventListener('mouseup', function() { g_selectedSize = this.value; })
     document.getElementById('alphaSlide').addEventListener('mouseup', function() { g_selectedColor[3] = this.value; })
@@ -154,7 +180,8 @@ function main() {
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
     // Clear <canvas>
-    gl.clear(gl.COLOR_BUFFER_BIT);
+    // gl.clear(gl.COLOR_BUFFER_BIT);
+    renderAllShapes();
 }
 
 // Extract the event click and change it to webGL coordinates
@@ -173,19 +200,46 @@ function convertCoordinateEventsToGL(ev){
 function renderAllShapes(){
     // Check the time at the start of this function
     var startTime = performance.now()
+
+    // Pass the matrix to u_ModelMatrix attribute
+    var globalRotMat = new Matrix4().rotate(g_globalAngle, 0, 1, 0);
+
+    // console.log(globalRotMat.elements)
+    gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
     
     // Clear <canvas>
-    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    // Draw each shape in the list
-    var len = g_shapesList.length;
-    for(var i = 0; i < len; i++) {
-        g_shapesList[i].render();
-    }
+    // Draw the body Cube
+    var body = new Cube();
+    body.color = [1.0, 0.0, 0.0, 1.0];
+    body.matrix.translate(-.25, -.75, 0.0);
+    body.matrix.rotate(-5, 1, 0, 0)
+    body.matrix.scale(0.5, .3, .5);
+    body.render();
+
+    // Draw a left arm
+    var leftArm = new Cube();
+    leftArm.color = [1, 1, 0, 1];
+    leftArm.matrix.setTranslate(0, -.5, 0.0);
+    leftArm.matrix.rotate(-5, 1, 0, 0);
+    leftArm.matrix.rotate(0, 0, 0, 1);
+    leftArm.matrix.scale(0.25, .7, .5);
+    leftArm.matrix.translate(-.5, 0, 0);
+    leftArm.render();
+
+    // Test Box
+    var box = new Cube();
+    box.color = [1, 0, 1, 1];
+    box.matrix.translate(-.1, .1, 0, 0);
+    box.matrix.rotate(-30, 1, 0, 0);
+    box.matrix.scale(.2, .4, .2);
+    box.render();
+
 
     // Check the time at the end of the function, and show on webpage
     var duration = performance.now() - startTime;
-    sendTextToHTML("numdot: " + len + " ms: " + Math.floor(duration) + " fps " + Math.floor(10000/duration)/10, "numdot")
+    sendTextToHTML(" ms: " + Math.floor(duration) + " fps " + Math.floor(10000/duration)/10, "numdot")
 }
 
 // Set the text of an HTML element
