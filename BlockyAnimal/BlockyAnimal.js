@@ -171,7 +171,7 @@ function addActionsForHtmlUI(){
     document.getElementById('yellowSlide').addEventListener('mousemove', function() { g_yellowAngle = this.value; renderAllShapes();})
 
     // Walk Slider Events
-    document.getElementById('walkSlide').addEventListener('mousemove', function() { g_walkAngle = this.value; renderAllShapes();})
+    // document.getElementById('walkSlide').addEventListener('mousemove', function() { g_walkAngle1 = this.value; renderAllShapes();})
 
     // Tail Slider Events
     document.getElementById('tailSlide').addEventListener('mousemove', function() { g_tailAngle = this.value; renderAllShapes();})
