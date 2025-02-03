@@ -113,7 +113,11 @@ let g_yellowAngle = 0;
 let g_magentaAngle = 0;
 let g_yellowAnimation = false;
 let g_magentaAnimation = false;
-let g_walkAngle = 0;
+let g_walkAngle1 = 0;
+let g_walkAngle2 = 0;
+let g_walkAngle3 = 0;
+let g_walkAngle4 = 0;
+let g_walkDisplacement = 0;
 let g_walkAnimation = false;
 let g_tailAngle = 0;
 let g_tailAnimation = false;
@@ -229,7 +233,7 @@ function tick() {
 
     // Print some debug information so we know we are running
     g_seconds = performance.now() / 1000.0 - g_startTime;
-    // console.log(performance.now());
+    console.log(performance.now());
 
     // Update Animation Angles
     updateAnimationAngles();
@@ -270,7 +274,18 @@ function updateAnimationAngles() {
     }
 
     if (g_walkAnimation) {
-        g_walkAngle = (20*Math.sin(3 *g_seconds));
+
+        // front left
+        g_walkAngle1 = (20*Math.sin(3 *g_seconds));
+        // back right
+        g_walkAngle4 = (20*Math.sin(3 * (g_seconds - (Math.PI / 10))));
+        // front right
+        g_walkAngle2 = (20*Math.sin(3 * (g_seconds - Math.PI )));
+        // back left
+        g_walkAngle3 = (20*Math.sin(3 * (g_seconds - (Math.PI * 11/10))));
+
+        g_walkDisplacement = Math.cos(3 * (2*g_seconds + Math.PI));
+
         g_specialAngle1 = 0;
         g_specialAngle2 = 0;
         g_specialAngle3 = 0;
@@ -284,9 +299,10 @@ function updateAnimationAngles() {
     }
 
     if (g_specialAnimation) {
-        let k = 3
+        let k = 3;
         g_specialAngle1 = (-45 * Math.max(Math.min(Math.cos(k * g_seconds), 0.8), -0.8) * 1.25 - 45);
-        g_walkAngle = 0
+        g_walkAngle = 0;
+        g_walkDisplacement = 0;
         g_specialAngle2 = (-25 * Math.max((Math.cos(k * g_seconds) - Math.cos((k * g_seconds) * 2) + 0.5), 0) - 10);
         g_specialAngle3 = (-25 * Math.max((Math.cos(k * g_seconds + Math.PI) - Math.cos((k * g_seconds + Math.PI) * 2) + 0.5), 0) - 10);
         g_specialAngle4 = (-10 * Math.max(Math.min(Math.cos(k * g_seconds), 0.8), -0.8) * 1.25);
@@ -326,7 +342,6 @@ function renderAllShapes(){
     var globalRotMat = new Matrix4().rotate(g_globalAngleY, 1, 0, 0);
     globalRotMat = globalRotMat.rotate(g_globalAngleX, 0, 1, 0);
 
-    // console.log(globalRotMat.elements)
     gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
     
     // Clear <canvas>
@@ -354,6 +369,8 @@ function renderAllShapes(){
     body.translate(0, g_specialAngle2 / 400, 0);
     body.translate(0, -g_specialAngle3 / 400, 0);
     body.translate(g_specialDisplacement, 0, 0);
+
+    body.translate(0, g_walkDisplacement / 30, 0)
 
     bodyCoordinateMat = new Matrix4(body);
 
@@ -461,7 +478,7 @@ function renderAllShapes(){
     
     leftFrontTopLeg.translate(.05, 0.2, 0.25);
 
-    leftFrontTopLeg.rotate(g_walkAngle + 15, 1, 0, 0);
+    leftFrontTopLeg.rotate(g_walkAngle1 + 15, 1, 0, 0);
 
     leftFrontTopLeg.rotate(g_specialAngle2, 0, 0, 1);
 
@@ -484,7 +501,7 @@ function renderAllShapes(){
 
     rightFrontTopLeg.translate(.25, 0.2, 0.25);
     
-    rightFrontTopLeg.rotate(-g_walkAngle + 15, 1, 0, 0);
+    rightFrontTopLeg.rotate(g_walkAngle2 + 15, 1, 0, 0);
 
     rightFrontTopLeg.rotate(-g_specialAngle3, 0, 0, 1);
 
@@ -505,7 +522,7 @@ function renderAllShapes(){
     var leftBackTopLegColor = [1.0, 1.0, 1.0, 1.0];
 
     leftBackTopLeg.translate(.05, 0.2, 0.8);
-    leftBackTopLeg.rotate(g_walkAngle - 20, 1, 0, 0);
+    leftBackTopLeg.rotate(g_walkAngle3 - 20, 1, 0, 0);
 
     leftBackTopLeg.rotate(g_specialAngle2, 0, 0, 1);
 
@@ -526,7 +543,7 @@ function renderAllShapes(){
     var rightBackTopLegColor = [1.0, 1.0, 1.0, 1.0];
 
     rightBackTopLeg.translate(.25, 0.2, 0.8);
-    rightBackTopLeg.rotate(-g_walkAngle - 20, 1, 0, 0);
+    rightBackTopLeg.rotate(g_walkAngle4 - 20, 1, 0, 0);
     rightBackTopLeg.rotate(-g_specialAngle3, 0, 0, 1);
     rightBackTopLeg.rotate(180, 1, 0, 0);
 
@@ -550,7 +567,7 @@ function renderAllShapes(){
 
     // var leftFrontBotLegCoordinateMat = new Matrix4(leftFrontBotLeg);
     
-    leftFrontBotLeg.rotate(g_walkAngle - 15, 1, 0, 0);
+    leftFrontBotLeg.rotate(g_walkAngle1 - 15, 1, 0, 0);
     leftFrontBotLeg.scale(0.5, 0.5, 0.5);
     leftFrontBotLeg.scale(0.1, 0.8, 0.1);
     
@@ -566,7 +583,7 @@ function renderAllShapes(){
 
     // var rightFrontBotLegCoordinateMat = new Matrix4(rightFrontBotLeg);
     
-    rightFrontBotLeg.rotate(-g_walkAngle - 15, 1, 0, 0);
+    rightFrontBotLeg.rotate(g_walkAngle2 - 15, 1, 0, 0);
     rightFrontBotLeg.scale(0.5, 0.5, 0.5);
     rightFrontBotLeg.scale(0.1, 0.8, 0.1);
     
@@ -582,7 +599,7 @@ function renderAllShapes(){
 
     // var leftBackBotLegCoordinateMat = new Matrix4(leftBackBotLeg);
     
-    leftBackBotLeg.rotate(g_walkAngle + 20, 1, 0, 0);
+    leftBackBotLeg.rotate(g_walkAngle3 + 15, 1, 0, 0);
     leftBackBotLeg.scale(0.5, 0.5, 0.5);
     leftBackBotLeg.scale(0.1, 0.8, 0.1);
     
@@ -598,7 +615,7 @@ function renderAllShapes(){
 
     // var rightBackBotLegCoordinateMat = new Matrix4(rightBackBotLeg);
     
-    rightBackBotLeg.rotate(-g_walkAngle + 20, 1, 0, 0);
+    rightBackBotLeg.rotate(g_walkAngle4 + 15, 1, 0, 0);
     rightBackBotLeg.scale(0.5, 0.5, 0.5);
     rightBackBotLeg.scale(0.1, 0.8, 0.1);
     
