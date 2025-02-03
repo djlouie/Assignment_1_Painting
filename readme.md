@@ -9,3 +9,8 @@ CSE 160 - Painting Assignment 1
 
 
 Used ChatGPT To Lookup Code
+
+Based off of code from 2012 matsuda
+
+Polish Cow Music:
+https://archive.org/details/polish-cow-full-version 

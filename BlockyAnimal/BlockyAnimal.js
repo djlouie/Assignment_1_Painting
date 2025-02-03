@@ -113,6 +113,13 @@ let g_yellowAngle = 0;
 let g_magentaAngle = 0;
 let g_yellowAnimation = false;
 let g_magentaAnimation = false;
+let g_walkAngle = 0;
+let g_walkAnimation = false;
+let g_tailAngle = 0;
+let g_tailAnimation = false;
+let g_specialAngle1 = 0;
+let g_specialAngle2 = 0;
+let g_specialAnimation = false;
 
 // Set up actions for the HTML UI elements
 function addActionsForHtmlUI(){
@@ -128,12 +135,34 @@ function addActionsForHtmlUI(){
     document.getElementById('animationYellowOnButton').onclick = function() {g_yellowAnimation=true;};
     document.getElementById('animationMagentaOffButton').onclick = function() {g_magentaAnimation=false;};
     document.getElementById('animationMagentaOnButton').onclick = function() {g_magentaAnimation=true;};
+    document.getElementById('animationWalkOffButton').onclick = function() {g_walkAnimation=false;};
+    document.getElementById('animationWalkOnButton').onclick = function() {g_walkAnimation=true;};
+    document.getElementById('animationTailOffButton').onclick = function() {g_tailAnimation=false;};
+    document.getElementById('animationTailOnButton').onclick = function() {g_tailAnimation=true;};
+
+    document.getElementById('animationSpecialOffButton').onclick = function() {g_specialAnimation=false;};
+    document.getElementById('animationSpecialOnButton').onclick = function() {g_specialAnimation=true;};
+
+    document.getElementById('webgl').addEventListener('click', function(event) {
+        if (event.shiftKey && g_specialAnimation == false) {
+            g_specialAnimation = true;  // Shift key + click enables animation
+        } 
+        else if (event.shiftKey && g_specialAnimation == true) {
+            g_specialAnimation = false;  // Shift key + click disables animation
+        }
+    });
 
     // Magenta Slider Events
     document.getElementById('magentaSlide').addEventListener('mousemove', function() { g_magentaAngle = this.value; renderAllShapes();})
 
     // Yellow Slider Events
     document.getElementById('yellowSlide').addEventListener('mousemove', function() { g_yellowAngle = this.value; renderAllShapes();})
+
+    // Walk Slider Events
+    document.getElementById('walkSlide').addEventListener('mousemove', function() { g_walkAngle = this.value; renderAllShapes();})
+
+    // Tail Slider Events
+    document.getElementById('tailSlide').addEventListener('mousemove', function() { g_tailAngle = this.value; renderAllShapes();})
 
     // Angle Slider Events
     // document.getElementById('angleSlide').addEventListener('mouseup', function() { g_globalAngle = this.value; } );
@@ -146,7 +175,18 @@ function addActionsForHtmlUI(){
     // document.getElementById('segmentsSlide').addEventListener('mouseup', function() { g_selectedSegments = this.value; })
 }
 
+var g_stats;
 function main() {
+
+    // FPS Monitor, check out https://github.com/mrdoob/stats.js/ for more info
+    g_stats = new Stats();
+
+    // move panel to right side instead of left
+    // cuz our canvas will be covered
+    g_stats.dom.style.left = "auto";
+    g_stats.dom.style.right = "0";
+    g_stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
+    document.body.appendChild(g_stats.dom);
 
     // Set up canvas and gl variables
     setupWebGL();
@@ -162,7 +202,7 @@ function main() {
     canvas.onmouseup = mouseReset;
 
     // Specify the color for clearing <canvas>
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.clearColor(0.2, 0.2, 0.2, 1.0);
 
     // Clear <canvas>
     // gl.clear(gl.COLOR_BUFFER_BIT);
@@ -176,6 +216,9 @@ var g_seconds = performance.now() / 1000.0 - g_startTime;
 // Called by the browser repeatedly whenever its time
 function tick() {
 
+    // get fps of tick
+    g_stats.begin();
+
     // Print some debug information so we know we are running
     g_seconds = performance.now() / 1000.0 - g_startTime;
     // console.log(performance.now());
@@ -185,6 +228,8 @@ function tick() {
 
     // Draw Everything
     renderAllShapes();
+
+    g_stats.end();
 
     // Tell the browser to update again when it has the time
     requestAnimationFrame(tick);
@@ -202,6 +247,9 @@ function convertCoordinateEventsToGL(ev){
     return ([x, y]);
 }
 
+g_audio = null;
+g_audio = new Audio('Audio/Polish Cow Full Version.mp3')
+g_audio.loop = true;
 // Update the angles of everything if currently animated
 function updateAnimationAngles() {
     if (g_yellowAnimation) {
@@ -211,6 +259,39 @@ function updateAnimationAngles() {
     if (g_magentaAnimation) {
         g_magentaAngle = (45*Math.sin(3 *g_seconds));
     }
+
+    if (g_walkAnimation) {
+        g_walkAngle = (20*Math.sin(3 *g_seconds));
+    }
+
+    if (g_tailAnimation) {
+        g_tailAngle = (60*Math.sin(5 *g_seconds));
+    }
+
+    if (g_specialAnimation) {
+        g_specialAngle1 = (-45*Math.cos(g_seconds) - 40);
+        g_walkAngle = 0
+        g_specialAngle2 = (-25*Math.cos(g_seconds * 2) - 20);
+
+        g_audio.play();
+    }
+    else {
+        g_audio.pause();
+    }
+}
+
+function drawCube(M, color){
+    cube = new Cube();
+    cube.matrix = new Matrix4(M);
+    cube.color = color;
+    cube.render();
+}
+
+function drawCylinder(M, color){
+    cylinder = new Cylinder();
+    cylinder.matrix = new Matrix4(M);
+    cylinder.color = color;
+    cylinder.render();
 }
 
 // Draw every shape that is supposed to be in the canvas
@@ -235,44 +316,301 @@ function renderAllShapes(){
     // test.matrix.scale(0.5, 0.5, 0.5);
     // test.render();
 
-    // Draw the body Cube
-    var body = new Cube();
-    body.color = [1.0, 0.0, 0.0, 1.0];
-    body.matrix.translate(-.25, -.75, 0.0);
-    body.matrix.rotate(-5, 1, 0, 0)
-    body.matrix.scale(0.5, .3, .5);
-    body.render();
+    // Draw the body
+    var body = new Matrix4();
+    var bodyColor = [1.0, 1.0, 1.0, 1.0];
+    body.translate(-.20, -0.25, -0.5);
+    body.rotate(0, 1, 0, 0)
 
-    // Draw Yellow
-    var yellow = new Cube();
-    yellow.color = [1, 1, 0, 1];
-    yellow.matrix.setTranslate(0, -.5, 0.0);
-    yellow.matrix.rotate(-5, 1, 0, 0);
+    // special animation
+    body.rotate(g_specialAngle1, 0, 1, 0);
 
-    yellow.matrix.rotate(-g_yellowAngle, 0, 0, 1);
+    bodyCoordinateMat = new Matrix4(body);
 
-    // if (g_yellowAnimation){
-    //     yellow.matrix.rotate(45 * Math.sin(g_seconds), 0, 0, 1);
-    // } else {
-    //     yellow.matrix.rotate(-g_yellowAngle, 0, 0, 1);
-    // }
+    body.scale(0.3, .4, 1);
+
+    drawCube(body, bodyColor);
+
+    // Draw the head
+    var head = new Matrix4();
+    var headColor = [1.0, 1.0, 1.0, 1.0];
+    head = new Matrix4(bodyCoordinateMat);
+    head.translate(.05, 0.25, -0.27);
+
+    head.translate(.05, 0, 0);
     
-    var yellowCoordinatesMat = new Matrix4(yellow.matrix);
-    yellow.matrix.scale(0.25, .7, .5);
-    yellow.matrix.translate(-.5, 0, 0);
-    yellow.render();
+    head.rotate(-g_yellowAngle, 0, 0, 1);   
 
-    // Test Magenta
-    var magenta = new Cube();
-    magenta.color = [1, 0, 1, 1];
-    magenta.matrix = yellowCoordinatesMat;
-    magenta.matrix.translate(0, 0.65, 0);
-    magenta.matrix.rotate(g_magentaAngle, 0, 0, 1);
-    magenta.matrix.rotate(0, 1, 0, 0);
-    magenta.matrix.scale(.3, .3, .3);
-    // preventing z fighting due to floating point precision errors with a very small displacement
-    magenta.matrix.translate(-.5, 0, -0.001);
-    magenta.render();
+    head.translate(-.05, 0, 0);
+
+    headCoordinateMat = new Matrix4(head);
+
+    head.scale(0.2, 0.25, 0.35);
+    
+    drawCube(head, headColor);
+
+    // Draw the nose
+    var nose = new Matrix4();
+    var noseColor = [1, 0.4118, 0.7059, 1.0];
+    nose = new Matrix4(headCoordinateMat);
+    nose.translate(.025, 0.02, -0.1);
+
+    nose.translate(.07, 0, 0);
+
+    nose.rotate(-g_magentaAngle, 0, 0, 1);
+
+    nose.translate(-.07, 0, 0);
+
+    nose.scale(0.15, 0.1, 0.1);
+
+    drawCube(nose, noseColor);
+
+    // Eyes
+    var eye1 = new Matrix4();
+    var eye1Color = [0, 0, 0, 1.0];
+    eye1 = new Matrix4(headCoordinateMat);
+
+    eye1.translate(.025, 0.15, -0.05);
+
+    eye1.scale(0.05, 0.05, 0.05);
+
+    drawCube(eye1, eye1Color);
+
+    var eye2 = new Matrix4();
+    var eye2Color = [0, 0, 0, 1.0];
+    eye2 = new Matrix4(headCoordinateMat);
+
+    eye2.translate(.125, 0.15, -0.05);
+
+    eye2.scale(0.05, 0.05, 0.05);
+
+    drawCube(eye2, eye2Color);
+
+    // Ears (1 = left from the front)
+    var innerEar1 = new Matrix4();
+    var innerEar1Color = [1, 0.4118, 0.7059, 1.0];
+    innerEar1 = new Matrix4(headCoordinateMat);
+
+    innerEar1.translate(.02, 0.11, 0.2);
+    innerEar1.rotate(45, 0, 0, 1);
+    innerEar1.scale(0.1, 0.15, 0.05);
+
+    drawCube(innerEar1, innerEar1Color);
+
+    var innerEar2 = new Matrix4();
+    var innerEar2Color = [1, 0.4118, 0.7059, 1.0];
+    innerEar2 = new Matrix4(headCoordinateMat);
+
+    innerEar2.translate(.12, 0.185, 0.2);
+    innerEar2.rotate(-45, 0, 0, 1);
+    innerEar2.scale(0.1, 0.15, 0.05);
+
+    drawCube(innerEar2, innerEar2Color);
+
+    var outerEar1 = new Matrix4();
+    var outerEar1Color = [1, 1, 1, 1.0];
+    outerEar1 = new Matrix4(headCoordinateMat);
+
+    outerEar1.translate(.02, 0.08, 0.25);
+    outerEar1.rotate(45, 0, 0, 1);
+    outerEar1.scale(0.15, 0.2, 0.05);
+
+    drawCube(outerEar1, outerEar1Color);
+
+    var outerEar2 = new Matrix4();
+    var outerEar2Color = [1, 1, 1, 1.0];
+    outerEar2 = new Matrix4(headCoordinateMat);
+
+    outerEar2.translate(.09, 0.2, 0.25);
+    outerEar2.rotate(-45, 0, 0, 1);
+    outerEar2.scale(0.15, 0.2, 0.05);
+
+    drawCube(outerEar2, outerEar2Color);
+
+    // Legs
+
+    // leg 1
+    var leftFrontTopLeg = new Matrix4(bodyCoordinateMat);
+    var leftFrontTopLegColor = [1.0, 1.0, 1.0, 1.0];
+    
+    leftFrontTopLeg.translate(.05, 0.2, 0.25);
+
+    leftFrontTopLeg.rotate(g_walkAngle + 15, 1, 0, 0);
+
+    leftFrontTopLeg.rotate(g_specialAngle2, 0, 0, 1);
+
+    leftFrontTopLeg.rotate(180, 1, 0, 0);
+
+    var leftFrontTopLegCoordinateMat = new Matrix4(leftFrontTopLeg);
+
+    leftFrontTopLeg.scale(0.5, 0.5, 0.5);
+    leftFrontTopLeg.scale(0.1, 0.8, 0.1);
+    
+    drawCylinder(leftFrontTopLeg, leftFrontTopLegColor);
+
+
+    // leg 2
+    var rightFrontTopLeg = new Matrix4(bodyCoordinateMat);
+    var rightFrontTopLegColor = [1.0, 1.0, 1.0, 1.0];
+
+    rightFrontTopLeg.translate(.25, 0.2, 0.25);
+    
+    rightFrontTopLeg.rotate(-g_walkAngle + 15, 1, 0, 0);
+
+    rightFrontTopLeg.rotate(180, 1, 0, 0);
+
+    var rightFrontTopLegCoordinateMat = new Matrix4(rightFrontTopLeg);
+
+    rightFrontTopLeg.scale(0.5, 0.5, 0.5);
+    rightFrontTopLeg.scale(0.1, 0.8, 0.1);
+    
+    drawCylinder(rightFrontTopLeg, rightFrontTopLegColor);
+
+    // leg 3
+    var leftBackTopLeg = new Matrix4(bodyCoordinateMat);
+    var leftBackTopLegColor = [1.0, 1.0, 1.0, 1.0];
+
+    leftBackTopLeg.translate(.05, 0.2, 0.8);
+    leftBackTopLeg.rotate(g_walkAngle - 20, 1, 0, 0);
+
+    leftBackTopLeg.rotate(g_specialAngle2, 0, 0, 1);
+
+    leftBackTopLeg.rotate(180, 1, 0, 0);
+
+    var leftBackTopLegCoordinateMat = new Matrix4(leftBackTopLeg);
+
+    leftBackTopLeg.scale(0.5, 0.5, 0.5);
+    leftBackTopLeg.scale(0.1, 0.8, 0.1);
+    
+    drawCylinder(leftBackTopLeg, leftBackTopLegColor);
+
+    // leg 4
+    var rightBackTopLeg = new Matrix4(bodyCoordinateMat);
+    var rightBackTopLegColor = [1.0, 1.0, 1.0, 1.0];
+
+    rightBackTopLeg.translate(.25, 0.2, 0.8);
+    rightBackTopLeg.rotate(-g_walkAngle - 20, 1, 0, 0);
+    rightBackTopLeg.rotate(180, 1, 0, 0);
+
+    var rightBackTopLegCoordinateMat = new Matrix4(rightBackTopLeg);
+
+    rightBackTopLeg.scale(0.5, 0.5, 0.5);
+    rightBackTopLeg.scale(0.1, 0.8, 0.1);
+    
+    drawCylinder(rightBackTopLeg, rightBackTopLegColor);
+
+    // leg 5
+    var leftFrontBotLeg = new Matrix4(leftFrontTopLegCoordinateMat);
+    var leftFrontBotLegColor = [1.0, 1.0, 1.0, 1.0];
+
+    leftFrontBotLeg.scale(1, 0.5, 1);
+
+    leftFrontBotLeg.translate(0, 0.7, 0.01);
+
+    // var leftFrontBotLegCoordinateMat = new Matrix4(leftFrontBotLeg);
+    
+    leftFrontBotLeg.rotate(g_walkAngle - 15, 1, 0, 0);
+    leftFrontBotLeg.scale(0.5, 0.5, 0.5);
+    leftFrontBotLeg.scale(0.1, 0.8, 0.1);
+    
+    drawCylinder(leftFrontBotLeg, leftFrontBotLegColor);
+
+    // leg 6
+    var rightFrontBotLeg = new Matrix4(rightFrontTopLegCoordinateMat);
+    var rightFrontBotLegColor = [1.0, 1.0, 1.0, 1.0];
+
+    rightFrontBotLeg.scale(1, 0.5, 1);
+
+    rightFrontBotLeg.translate(0, 0.7, 0.01);
+
+    // var rightFrontBotLegCoordinateMat = new Matrix4(rightFrontBotLeg);
+    
+    rightFrontBotLeg.rotate(-g_walkAngle - 15, 1, 0, 0);
+    rightFrontBotLeg.scale(0.5, 0.5, 0.5);
+    rightFrontBotLeg.scale(0.1, 0.8, 0.1);
+    
+    drawCylinder(rightFrontBotLeg, rightFrontBotLegColor);
+
+    // leg 7
+    var leftBackBotLeg = new Matrix4(leftBackTopLegCoordinateMat);
+    var leftBackBotLegColor = [1.0, 1.0, 1.0, 1.0];
+
+    leftBackBotLeg.scale(1, 0.5, 1);
+
+    leftBackBotLeg.translate(0, 0.7, -0.01);
+
+    // var leftBackBotLegCoordinateMat = new Matrix4(leftBackBotLeg);
+    
+    leftBackBotLeg.rotate(g_walkAngle + 20, 1, 0, 0);
+    leftBackBotLeg.scale(0.5, 0.5, 0.5);
+    leftBackBotLeg.scale(0.1, 0.8, 0.1);
+    
+    drawCylinder(leftBackBotLeg, leftBackBotLegColor);
+
+    // leg 8
+    var rightBackBotLeg = new Matrix4(rightBackTopLegCoordinateMat);
+    var rightBackBotLegColor = [1.0, 1.0, 1.0, 1.0];
+
+    rightBackBotLeg.scale(1, 0.5, 1);
+
+    rightBackBotLeg.translate(0, 0.7, -0.01);
+
+    // var rightBackBotLegCoordinateMat = new Matrix4(rightBackBotLeg);
+    
+    rightBackBotLeg.rotate(-g_walkAngle + 20, 1, 0, 0);
+    rightBackBotLeg.scale(0.5, 0.5, 0.5);
+    rightBackBotLeg.scale(0.1, 0.8, 0.1);
+    
+    drawCylinder(rightBackBotLeg, rightBackBotLegColor);
+
+    // TAIL
+    // tail 1
+    var tailbase = new Matrix4(bodyCoordinateMat);
+    var tailbaseColor = [0.50, 0.25, 0.13, 1];
+    
+    tailbase.translate(.15, 0.3, 1);
+
+    tailbase.rotate(g_tailAngle, 0, 1, 0);
+    tailbase.rotate(g_tailAngle / 3, 1, 0, 0);
+
+    tailbase.rotate(90, 1, 0, 0);
+
+    var tailbaseCoordinateMat = new Matrix4(tailbase);
+
+    tailbase.scale(0.5, 0.2, 0.5);
+    tailbase.scale(0.1, 0.8, 0.1);
+    
+    drawCylinder(tailbase, tailbaseColor);
+
+    // tail 2
+    var tailMid = new Matrix4(tailbaseCoordinateMat);
+    var tailMidColor = [0.50, 0.25, 0.13, 1];
+    
+    tailMid.translate(0, 0.15, 0);
+
+    tailMid.rotate(-g_tailAngle, 0, 0, 1);
+
+    var tailMidCoordinateMat = new Matrix4(tailMid);
+
+    tailMid.scale(0.3, 0.2, 0.3);
+    tailMid.scale(0.1, 0.8, 0.1);
+    
+    drawCylinder(tailMid, tailMidColor);
+
+    // tail 3
+    var tailEnd = new Matrix4(tailMidCoordinateMat);
+    var tailEndColor = [0.50, 0.25, 0.13, 1];
+    
+    tailEnd.translate(0, 0.15, 0);
+
+    tailEnd.rotate(-g_tailAngle, 0, 0, 1);
+
+    // var tailEndCoordinateMat = new Matrix4(tailEnd);
+
+    tailEnd.scale(0.4, 0.15, 0.4);
+    tailEnd.scale(0.1, 0.8, 0.1);
+    
+    drawCylinder(tailEnd, tailEndColor);
 
 
     // Check the time at the end of the function, and show on webpage
@@ -324,7 +662,7 @@ function rotate(x, y){
     console.log(g_globalAngleX)
     console.log(g_globalAngleY)
 
-    g_globalAngleX = (g_initialAngleX + (x - g_initialMouseX)*360) % 360;
+    g_globalAngleX = (g_initialAngleX + (g_initialMouseX - x)*360) % 360;
     g_globalAngleY = (g_initialAngleY + (y - g_initialMouseY)*360) % 360;
 }
 

@@ -37,5 +37,23 @@ class Cube{
         drawTriangle3D( [1.0, 0.0, 0.0,  1.0, 1.0, 0.0,  1.0, 1.0, 1.0] );
         drawTriangle3D( [1.0, 0.0, 0.0,  1.0, 1.0, 1.0,  1.0, 0.0, 1.0] );
 
+        // Left of Cube
+        drawTriangle3D( [0.0, 0.0, 0.0,  0.0, 1.0, 0.0,  0.0, 1.0, 1.0] );
+        drawTriangle3D( [0.0, 0.0, 0.0,  0.0, 1.0, 1.0,  0.0, 0.0, 1.0] );
+
+        // Pass the color of a point to u_FragColor uniform variable
+        gl.uniform4f(u_FragColor, rgba[0]*.7, rgba[1]*.7, rgba[2]*.7, rgba[3])
+
+        // Bottom of Cube
+        drawTriangle3D( [0.0, 0.0, 0.0,  0.0, 0.0, 1.0,  1.0, 0.0, 1.0] );
+        drawTriangle3D( [0.0, 0.0, 0.0,  1.0, 0.0, 1.0,  1.0, 0.0, 0.0] );
+
+        // Pass the color of a point to u_FragColor uniform variable
+        gl.uniform4f(u_FragColor, rgba[0]*.6, rgba[1]*.6, rgba[2]*.6, rgba[3])
+
+        // Back of Cube
+        drawTriangle3D( [0.0, 0.0, 1.0,  0.0, 1.0, 1.0,  1.0, 1.0, 1.0] );
+        drawTriangle3D( [0.0, 0.0, 1.0,  1.0, 1.0, 1.0,  1.0, 0.0, 1.0] );
+
     }
 }
