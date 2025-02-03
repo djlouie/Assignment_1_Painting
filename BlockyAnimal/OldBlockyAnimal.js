@@ -107,8 +107,7 @@ let g_selectedColor = [1.0, 1.0, 1.0, 1.0];
 let g_selectedSize = 5;
 let g_selectedType = POINT;
 let g_selectedSegments = 10;
-let g_globalAngleX = 5;
-let g_globalAngleY = 5;
+let g_globalAngle = 5;
 let g_yellowAngle = 0;
 let g_magentaAngle = 0;
 let g_yellowAnimation = false;
@@ -116,12 +115,46 @@ let g_magentaAnimation = false;
 
 // Set up actions for the HTML UI elements
 function addActionsForHtmlUI(){
-    
-    // // Mouse Rotate
-    // document.getElementById('webgl').onclick = function(event) {
 
-    //     convertCoordinateEventsToGL(event)
-    // }
+    // // Button Events (Shape Type)
+    // document.getElementById('red').onclick = function() {
+    //     g_selectedColor = [1.0, 0.0, 0.0, g_selectedColor[3]];
+    //     let redSlide = document.getElementById('redSlide');
+    //     let greenSlide = document.getElementById('greenSlide');
+    //     let blueSlide = document.getElementById('blueSlide');
+    //     [redSlide.value, greenSlide.value, blueSlide.value, ] = [redSlide.max, 0.0, 0.0];
+    // };
+    // document.getElementById('green').onclick = function() {
+    //     g_selectedColor = [0.0, 1.0, 0.0, g_selectedColor[3]];
+    //     let redSlide = document.getElementById('redSlide');
+    //     let greenSlide = document.getElementById('greenSlide');
+    //     let blueSlide = document.getElementById('blueSlide');
+    //     [redSlide.value, greenSlide.value, blueSlide.value] = [0.0, greenSlide.max, 0.0];
+    // };
+    // document.getElementById('blue').onclick = function() {
+    //     g_selectedColor = [0.0, 0.0, 1.0, g_selectedColor[3]];
+    //     let redSlide = document.getElementById('redSlide');
+    //     let greenSlide = document.getElementById('greenSlide');
+    //     let blueSlide = document.getElementById('blueSlide');
+    //     [redSlide.value, greenSlide.value, blueSlide.value] = [0.0, 0.0, blueSlide.max];
+    // };
+    // document.getElementById('clear').onclick = function() {g_shapesList = []; renderAllShapes(); };
+    // document.getElementById('customDrawing').onclick = function() {
+    //     let point = new TRex(); point.position = [0, 0]; point.color = [1.0, 1.0, 1.0, 1.0]; point.size = 25; 
+    //     g_shapesList = [point]; 
+    //     renderAllShapes(); 
+    // };
+
+
+    // document.getElementById('pointButton').onclick = function() {g_selectedType = POINT};
+    // document.getElementById('triButton').onclick = function() {g_selectedType = TRIANGLE};
+    // document.getElementById('circleButton').onclick = function() {g_selectedType = CIRCLE};
+    // document.getElementById('trexButton').onclick = function() {g_selectedType = TREX};
+
+    // // Color Slider Events
+    // document.getElementById('redSlide').addEventListener('mouseup', function() { g_selectedColor[0] = this.value/100; });
+    // document.getElementById('greenSlide').addEventListener('mouseup', function() { g_selectedColor[1] = this.value/100; });
+    // document.getElementById('blueSlide').addEventListener('mouseup', function() { g_selectedColor[2] = this.value/100; });
 
     // Button Events
     document.getElementById('animationYellowOffButton').onclick = function() {g_yellowAnimation=false;};
@@ -137,8 +170,7 @@ function addActionsForHtmlUI(){
 
     // Angle Slider Events
     // document.getElementById('angleSlide').addEventListener('mouseup', function() { g_globalAngle = this.value; } );
-    document.getElementById('angleSlideX').addEventListener('mousemove', function() { g_globalAngleX = this.value; renderAllShapes(); mouseReset(); } );
-    document.getElementById('angleSlideY').addEventListener('mousemove', function() { g_globalAngleY = this.value; renderAllShapes(); mouseReset(); } );
+    document.getElementById('angleSlide').addEventListener('mousemove', function() { g_globalAngle = this.value; renderAllShapes(); } );
 
     // // Size + Segments Slider Events
     // document.getElementById('sizeSlide').addEventListener('mouseup', function() { g_selectedSize = this.value; })
@@ -159,7 +191,6 @@ function main() {
     // Register function (event handler) to be called on a mouse press
     canvas.onmousedown = click;
     canvas.onmousemove = function(ev) { if (ev.buttons == 1) { click(ev) } };
-    canvas.onmouseup = mouseReset;
 
     // Specify the color for clearing <canvas>
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
@@ -175,10 +206,9 @@ var g_seconds = performance.now() / 1000.0 - g_startTime;
 
 // Called by the browser repeatedly whenever its time
 function tick() {
-
     // Print some debug information so we know we are running
     g_seconds = performance.now() / 1000.0 - g_startTime;
-    // console.log(performance.now());
+    console.log(performance.now());
 
     // Update Animation Angles
     updateAnimationAngles();
@@ -219,21 +249,13 @@ function renderAllShapes(){
     var startTime = performance.now()
 
     // Pass the matrix to u_ModelMatrix attribute
-    var globalRotMat = new Matrix4().rotate(g_globalAngleY, 1, 0, 0);
-    globalRotMat = globalRotMat.rotate(g_globalAngleX, 0, 1, 0);
+    var globalRotMat = new Matrix4().rotate(g_globalAngle, 0, 1, 0);
 
     // console.log(globalRotMat.elements)
     gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
     
     // Clear <canvas>
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-    // // Draw Cylinder 
-    // var test = new Cylinder();
-    // test.segments = 20;
-    // test.color = [0.5, 1.0, 1.0, 1.0];
-    // test.matrix.scale(0.5, 0.5, 0.5);
-    // test.render();
 
     // Draw the body Cube
     var body = new Cube();
@@ -290,103 +312,54 @@ function sendTextToHTML(text, htmlID){
     htmlElm.innerHTML = text;
 }
 
-// var g_shapesList = [];
+var g_shapesList = [];
 
-// // var g_points = [];    // The array for the position of a mouse press
-// // var g_colors = [];    // The array to store the color of a point
-// // var g_sizes = [];   // The array to store the size of the point
-
-g_initialAngleX = null;
-g_initialAngleY = null;
-g_initialMouseX = null;
-g_initialMouseY = null;
-function rotate(x, y){
-
-    if (g_initialAngleX === null){
-        g_initialAngleX = parseFloat(g_globalAngleX);
-    }
-    if (g_initialAngleY === null){
-        g_initialAngleY = parseFloat(g_globalAngleY);
-    }
-    if (g_initialMouseX === null){
-        g_initialMouseX = x;
-    }
-    if (g_initialMouseY === null){
-        g_initialMouseY = y;
-    }
-
-    // Rotate
-    console.log("ROTATE")
-    console.log(g_initialAngleX)
-    console.log(g_initialAngleY)
-    console.log(g_initialMouseX)
-    console.log(g_initialMouseY)
-    console.log(g_globalAngleX)
-    console.log(g_globalAngleY)
-
-    g_globalAngleX = (g_initialAngleX + (x - g_initialMouseX)*360) % 360;
-    g_globalAngleY = (g_initialAngleY + (y - g_initialMouseY)*360) % 360;
-}
-
-function mouseReset() {
-    g_initialAngleX = null;
-    g_initialAngleY = null;
-    g_initialMouseX = null;
-    g_initialMouseY = null;
-}
+// var g_points = [];    // The array for the position of a mouse press
+// var g_colors = [];    // The array to store the color of a point
+// var g_sizes = [];   // The array to store the size of the point
 
 function click(ev) {
 
-    console.log("On CLICK")
-    console.log(g_initialAngleX)
-    console.log(g_initialAngleY)
-    console.log(g_initialMouseX)
-    console.log(g_initialMouseY)
-    console.log(g_globalAngleX)
-    console.log(g_globalAngleY)
-
     let [x, y] = convertCoordinateEventsToGL(ev);
 
-    rotate(x, y);
+    // Create and store the new point
+    let point;
+    if (g_selectedType == POINT){
+        point = new Point();
+    } else if (g_selectedType == TRIANGLE) {
+        point = new Triangle();
+    } else if (g_selectedType == CIRCLE){
+        point = new Circle();
+    } else {
+        point = new TRex();
+    }
+    point.position = [x, y];
+    point.color = g_selectedColor.slice();
+    point.size = g_selectedSize;
 
-    // // Create and store the new point
-    // let point;
-    // if (g_selectedType == POINT){
-    //     point = new Point();
-    // } else if (g_selectedType == TRIANGLE) {
-    //     point = new Triangle();
-    // } else if (g_selectedType == CIRCLE){
-    //     point = new Circle();
-    // } else {
-    //     point = new TRex();
-    // }
-    // point.position = [x, y];
-    // point.color = g_selectedColor.slice();
-    // point.size = g_selectedSize;
+    if (g_selectedType == CIRCLE){
+        point.segments = g_selectedSegments;
+    }
 
-    // if (g_selectedType == CIRCLE){
-    //     point.segments = g_selectedSegments;
-    // }
+    g_shapesList.push(point);
 
-    // g_shapesList.push(point);
-
-    // // // Store the coordinates to g_points array
-    // // g_points.push([x, y]);
+    // // Store the coordinates to g_points array
+    // g_points.push([x, y]);
     
-    // // // Store the selected color to the g_colors array
-    // // g_colors.push(g_selectedColor.slice());
+    // // Store the selected color to the g_colors array
+    // g_colors.push(g_selectedColor.slice());
 
-    // // // Store the size of the point
-    // // g_sizes.push(g_selectedSize);
+    // // Store the size of the point
+    // g_sizes.push(g_selectedSize);
     
-    // // // Store the coordinates to g_points array
-    // // if (x >= 0.0 && y >= 0.0) {            // First quadrant
-    // //     g_colors.push([1.0, 0.0, 0.0, 1.0]);    // Red
-    // // } else if (x < 0.0 && y < 0.0) { // Third quadrant
-    // //     g_colors.push([0.0, 1.0, 0.0, 1.0]);    // Green
-    // // } else {                                                 // Others
-    // //     g_colors.push([1.0, 1.0, 1.0, 1.0]);    // White
-    // // }
+    // // Store the coordinates to g_points array
+    // if (x >= 0.0 && y >= 0.0) {            // First quadrant
+    //     g_colors.push([1.0, 0.0, 0.0, 1.0]);    // Red
+    // } else if (x < 0.0 && y < 0.0) { // Third quadrant
+    //     g_colors.push([0.0, 1.0, 0.0, 1.0]);    // Green
+    // } else {                                                 // Others
+    //     g_colors.push([1.0, 1.0, 1.0, 1.0]);    // White
+    // }
 
-    // renderAllShapes();
+    renderAllShapes();
 }
