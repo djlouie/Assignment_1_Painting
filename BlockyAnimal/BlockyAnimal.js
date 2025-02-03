@@ -257,12 +257,13 @@ g_audio = new Audio('Audio/Polish Cow Full Version.mp3')
 g_audio.loop = true;
 // Update the angles of everything if currently animated
 function updateAnimationAngles() {
-    if (g_yellowAnimation) {
-        g_yellowAngle = (45*Math.sin(g_seconds));
-    }
 
     if (g_magentaAnimation) {
-        g_magentaAngle = (45*Math.sin(3 *g_seconds));
+        g_magentaAngle = (45*Math.sin(3 * g_seconds));
+    }
+
+    if (g_yellowAnimation) {
+        g_yellowAngle = (20*Math.sin(1.5 * g_seconds));
     }
 
     if (g_walkAnimation) {
@@ -276,7 +277,7 @@ function updateAnimationAngles() {
     if (g_specialAnimation) {
         g_specialAngle1 = (-45*Math.cos(g_seconds) - 40);
         g_walkAngle = 0
-        g_specialAngle2 = (-25*Math.cos(g_seconds * 2) - 20);
+        g_specialAngle2 = (-25*(Math.cos(2 * g_seconds+Math.PI) - Math.cos((2 * g_seconds+Math.PI) * 2) + 0.5) - 20);
 
         g_audio.play();
     }
@@ -348,7 +349,7 @@ function renderAllShapes(){
 
     head.translate(.05, 0, 0);
     
-    head.rotate(-g_yellowAngle, 0, 0, 1);   
+    head.rotate(-g_magentaAngle, 0, 0, 1);   
 
     head.translate(-.05, 0, 0);
 
@@ -364,11 +365,7 @@ function renderAllShapes(){
     nose = new Matrix4(headCoordinateMat);
     nose.translate(.025, 0.02, -0.1);
 
-    nose.translate(.07, 0, 0);
-
-    nose.rotate(-g_magentaAngle, 0, 0, 1);
-
-    nose.translate(-.07, 0, 0);
+    nose.translate(0, g_yellowAngle / 200 / 4, 0);
 
     nose.scale(0.15, 0.1, 0.1);
 
