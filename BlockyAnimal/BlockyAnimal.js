@@ -233,7 +233,7 @@ function tick() {
 
     // Print some debug information so we know we are running
     g_seconds = performance.now() / 1000.0 - g_startTime;
-    console.log(performance.now());
+    // console.log(performance.now());
 
     // Update Animation Angles
     updateAnimationAngles();
@@ -301,7 +301,10 @@ function updateAnimationAngles() {
     if (g_specialAnimation) {
         let k = 3;
         g_specialAngle1 = (-45 * Math.max(Math.min(Math.cos(k * g_seconds), 0.8), -0.8) * 1.25 - 45);
-        g_walkAngle = 0;
+        g_walkAngle1 = 0;
+        g_walkAngle2 = 0;
+        g_walkAngle3 = 0;
+        g_walkAngle4 = 0;
         g_walkDisplacement = 0;
         g_specialAngle2 = (-25 * Math.max((Math.cos(k * g_seconds) - Math.cos((k * g_seconds) * 2) + 0.5), 0) - 10);
         g_specialAngle3 = (-25 * Math.max((Math.cos(k * g_seconds + Math.PI) - Math.cos((k * g_seconds + Math.PI) * 2) + 0.5), 0) - 10);
@@ -742,11 +745,11 @@ function renderAllShapes(){
     var udder = new Matrix4(bodyCoordinateMat);
     var udderColor = [1, 0.4118, 0.7059, 1.0];
     
-    udder.translate(.065, -.1, .55);
+    udder.translate(.045, -.1, .55);
 
     var udderCoordinateMat = new Matrix4(udder);
 
-    udder.scale(0.6, 0.6, 0.6)
+    udder.scale(0.7, 0.7, 0.7)
     udder.scale(0.3, 0.3, 0.3)
 
     drawCube(udder, udderColor)
@@ -757,7 +760,7 @@ function renderAllShapes(){
     
     subUdder1.rotate(g_udderAngle, 1, 1, 0);
 
-    subUdder1.translate(.04, .015, 0.04);
+    subUdder1.translate(.055, .015, 0.05);
 
     subUdder1.rotate(180, 1, 0, 0);
 
@@ -770,9 +773,9 @@ function renderAllShapes(){
     var subUdder2 = new Matrix4(udderCoordinateMat);
     var subUdder2Color = [1, 0.4118, 0.7059, 1.0];
     
-    subUdder2.rotate(g_udderAngle, 1, 1, 0);
+    subUdder2.rotate(g_udderAngle, 1, -1, 0);
 
-    subUdder2.translate(.14, .015, 0.04);
+    subUdder2.translate(.155, .015, 0.05);
 
     subUdder2.rotate(180, 1, 0, 0);
 
@@ -785,9 +788,9 @@ function renderAllShapes(){
     var subUdder3 = new Matrix4(udderCoordinateMat);
     var subUdder3Color = [1, 0.4118, 0.7059, 1.0];
     
-    subUdder3.rotate(g_udderAngle, 1, 1, 0);
+    subUdder3.rotate(g_udderAngle, -1, 1, 0);
 
-    subUdder3.translate(.14, .015, 0.14);
+    subUdder3.translate(.155, .015, 0.15);
 
     subUdder3.rotate(180, 1, 0, 0);
 
@@ -800,9 +803,9 @@ function renderAllShapes(){
     var subUdder4 = new Matrix4(udderCoordinateMat);
     var subUdder4Color = [1, 0.4118, 0.7059, 1.0];
     
-    subUdder4.rotate(g_udderAngle, 1, 1, 0);
+    subUdder4.rotate(g_udderAngle, -1, -1, 0);
 
-    subUdder4.translate(.04, .015, 0.14);
+    subUdder4.translate(.055, .015, 0.15);
 
     subUdder4.rotate(180, 1, 0, 0);
 
