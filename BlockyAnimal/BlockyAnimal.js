@@ -120,6 +120,8 @@ let g_tailAnimation = false;
 let g_specialAngle1 = 0;
 let g_specialAngle2 = 0;
 let g_specialAnimation = false;
+let g_udderAngle = 0;
+let g_udderAnimation = false;
 
 // Set up actions for the HTML UI elements
 function addActionsForHtmlUI(){
@@ -142,6 +144,9 @@ function addActionsForHtmlUI(){
 
     document.getElementById('animationSpecialOffButton').onclick = function() {g_specialAnimation=false;};
     document.getElementById('animationSpecialOnButton').onclick = function() {g_specialAnimation=true;};
+
+    document.getElementById('animationUdderOffButton').onclick = function() {g_udderAnimation=false;};
+    document.getElementById('animationUdderOnButton').onclick = function() {g_udderAnimation=true;};
 
     document.getElementById('webgl').addEventListener('click', function(event) {
         if (event.shiftKey && g_specialAnimation == false) {
@@ -277,6 +282,10 @@ function updateAnimationAngles() {
     }
     else {
         g_audio.pause();
+    }
+
+    if (g_udderAnimation) {
+        g_udderAngle = (10*Math.sin(g_seconds));
     }
 }
 
@@ -612,6 +621,146 @@ function renderAllShapes(){
     
     drawCylinder(tailEnd, tailEndColor);
 
+    // Patches
+
+    // patch 1
+    var patch1 = new Matrix4(bodyCoordinateMat);
+    var patch1Color = [0.50, 0.25, 0.13, 1];
+    
+    patch1.translate(.15, .25, .7);
+
+    patch1.scale(0.6, 0.6, 0.8)
+    patch1.scale(0.3, 0.3, 0.3)
+
+    drawCube(patch1, patch1Color)
+
+    // patch 2
+    var patch2 = new Matrix4(bodyCoordinateMat);
+    var patch2Color = [0.50, 0.25, 0.13, 1];
+    
+    patch2.translate(-.025, .1, .65);
+
+    patch2.scale(0.6, 0.8, 0.6)
+    patch2.scale(0.3, 0.3, 0.3)
+
+    drawCube(patch2, patch2Color)
+
+    // patch 3
+    var patch3 = new Matrix4(bodyCoordinateMat);
+    var patch3Color = [0.50, 0.25, 0.13, 1];
+    
+    patch3.translate(-.025, .25, .4);
+
+    patch3.scale(0.6, 0.6, 0.6)
+    patch3.scale(0.3, 0.3, 0.3)
+
+    drawCube(patch3, patch3Color)
+
+    // patch4
+    var patch4 = new Matrix4(bodyCoordinateMat);
+    var patch4Color = [0.50, 0.25, 0.13, 1];
+    
+    patch4.translate(.15, .25, .1);
+
+    patch4.scale(0.6, 0.6, 0.8)
+    patch4.scale(0.3, 0.3, 0.3)
+
+    drawCube(patch4, patch4Color)
+
+    // patch5
+    var patch5 = new Matrix4(bodyCoordinateMat);
+    var patch5Color = [0.50, 0.25, 0.13, 1];
+    
+    patch5.translate(-.025, .1, .15);
+
+    patch5.scale(0.6, 0.8, 0.6)
+    patch5.scale(0.3, 0.3, 0.3)
+
+    drawCube(patch5, patch5Color)
+
+    // patch6
+    var patch6 = new Matrix4(bodyCoordinateMat);
+    var patch6Color = [0.50, 0.25, 0.13, 1];
+    
+    patch6.translate(.15, .12, .4);
+
+    patch6.scale(0.6, 0.7, 0.7)
+    patch6.scale(0.3, 0.3, 0.3)
+
+    drawCube(patch6, patch6Color)
+
+    // Udder
+    var udder = new Matrix4(bodyCoordinateMat);
+    var udderColor = [1, 0.4118, 0.7059, 1.0];
+    
+    udder.translate(.065, -.1, .55);
+
+    var udderCoordinateMat = new Matrix4(udder);
+
+    udder.scale(0.6, 0.6, 0.6)
+    udder.scale(0.3, 0.3, 0.3)
+
+    drawCube(udder, udderColor)
+
+    // subUdder1
+    var subUdder1 = new Matrix4(udderCoordinateMat);
+    var subUdder1Color = [1, 0.4118, 0.7059, 1.0];
+    
+    subUdder1.rotate(g_udderAngle, 1, 1, 0);
+
+    subUdder1.translate(.04, .015, 0.04);
+
+    subUdder1.rotate(180, 1, 0, 0);
+
+    subUdder1.scale(0.3, 0.4, 0.3)
+    subUdder1.scale(0.1, 0.3, 0.1)
+
+    drawCylinder(subUdder1, subUdder1Color)
+
+    // subUdder2
+    var subUdder2 = new Matrix4(udderCoordinateMat);
+    var subUdder2Color = [1, 0.4118, 0.7059, 1.0];
+    
+    subUdder2.rotate(g_udderAngle, 1, 1, 0);
+
+    subUdder2.translate(.14, .015, 0.04);
+
+    subUdder2.rotate(180, 1, 0, 0);
+
+    subUdder2.scale(0.3, 0.4, 0.3)
+    subUdder2.scale(0.1, 0.3, 0.1)
+
+    drawCylinder(subUdder2, subUdder2Color)
+
+    // subUdder3
+    var subUdder3 = new Matrix4(udderCoordinateMat);
+    var subUdder3Color = [1, 0.4118, 0.7059, 1.0];
+    
+    subUdder3.rotate(g_udderAngle, 1, 1, 0);
+
+    subUdder3.translate(.14, .015, 0.14);
+
+    subUdder3.rotate(180, 1, 0, 0);
+
+    subUdder3.scale(0.3, 0.4, 0.3)
+    subUdder3.scale(0.1, 0.3, 0.1)
+
+    drawCylinder(subUdder3, subUdder3Color)
+
+    // subUdder4
+    var subUdder4 = new Matrix4(udderCoordinateMat);
+    var subUdder4Color = [1, 0.4118, 0.7059, 1.0];
+    
+    subUdder4.rotate(g_udderAngle, 1, 1, 0);
+
+    subUdder4.translate(.04, .015, 0.14);
+
+    subUdder4.rotate(180, 1, 0, 0);
+
+    subUdder4.scale(0.3, 0.4, 0.3)
+    subUdder4.scale(0.1, 0.3, 0.1)
+
+    drawCylinder(subUdder4, subUdder4Color)
 
     // Check the time at the end of the function, and show on webpage
     var duration = performance.now() - startTime;
