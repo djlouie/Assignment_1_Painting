@@ -815,8 +815,8 @@ function renderAllShapes(){
     drawCylinder(subUdder4, subUdder4Color)
 
     // Check the time at the end of the function, and show on webpage
-    var duration = performance.now() - startTime;
-    sendTextToHTML(" ms: " + Math.floor(duration) + " fps " + Math.floor(10000/duration)/10, "numdot")
+    // var duration = performance.now() - startTime;
+    // sendTextToHTML(" ms: " + Math.floor(duration) + " fps " + Math.floor(10000/duration)/10, "numdot")
 }
 
 // Set the text of an HTML element
