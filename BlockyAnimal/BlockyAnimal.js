@@ -119,6 +119,9 @@ let g_tailAngle = 0;
 let g_tailAnimation = false;
 let g_specialAngle1 = 0;
 let g_specialAngle2 = 0;
+let g_specialAngle3 = 0;
+let g_specialAngle4 = 0;
+let g_specialDisplacement = 0;
 let g_specialAnimation = false;
 let g_udderAngle = 0;
 let g_udderAnimation = false;
@@ -268,6 +271,12 @@ function updateAnimationAngles() {
 
     if (g_walkAnimation) {
         g_walkAngle = (20*Math.sin(3 *g_seconds));
+        g_specialAngle1 = 0;
+        g_specialAngle2 = 0;
+        g_specialAngle3 = 0;
+        g_specialAngle4 = 0;
+        g_specialDisplacement = 0
+
     }
 
     if (g_tailAnimation) {
@@ -275,9 +284,13 @@ function updateAnimationAngles() {
     }
 
     if (g_specialAnimation) {
-        g_specialAngle1 = (-45*Math.cos(g_seconds) - 40);
+        let k = 3
+        g_specialAngle1 = (-45 * Math.max(Math.min(Math.cos(k * g_seconds), 0.8), -0.8) * 1.25 - 45);
         g_walkAngle = 0
-        g_specialAngle2 = (-25*(Math.cos(2 * g_seconds+Math.PI) - Math.cos((2 * g_seconds+Math.PI) * 2) + 0.5) - 20);
+        g_specialAngle2 = (-25 * Math.max((Math.cos(k * g_seconds) - Math.cos((k * g_seconds) * 2) + 0.5), 0) - 10);
+        g_specialAngle3 = (-25 * Math.max((Math.cos(k * g_seconds + Math.PI) - Math.cos((k * g_seconds + Math.PI) * 2) + 0.5), 0) - 10);
+        g_specialAngle4 = (-10 * Math.max(Math.min(Math.cos(k * g_seconds), 0.8), -0.8) * 1.25);
+        g_specialDisplacement = 0.5;
 
         g_audio.play();
     }
@@ -329,11 +342,18 @@ function renderAllShapes(){
     // Draw the body
     var body = new Matrix4();
     var bodyColor = [1.0, 1.0, 1.0, 1.0];
+
     body.translate(-.20, -0.25, -0.5);
     body.rotate(0, 1, 0, 0)
 
     // special animation
     body.rotate(g_specialAngle1, 0, 1, 0);
+    body.rotate(g_specialAngle4, 0, 0, 1);
+
+    body.translate(0, -g_specialAngle4 / 80, 0);
+    body.translate(0, g_specialAngle2 / 400, 0);
+    body.translate(0, -g_specialAngle3 / 400, 0);
+    body.translate(g_specialDisplacement, 0, 0);
 
     bodyCoordinateMat = new Matrix4(body);
 
@@ -447,6 +467,9 @@ function renderAllShapes(){
 
     leftFrontTopLeg.rotate(180, 1, 0, 0);
 
+    leftFrontTopLeg.translate(0, g_specialAngle2 / 400, 0);
+    leftFrontTopLeg.translate(0, -g_specialAngle3 / 400, 0);
+
     var leftFrontTopLegCoordinateMat = new Matrix4(leftFrontTopLeg);
 
     leftFrontTopLeg.scale(0.5, 0.5, 0.5);
@@ -463,7 +486,12 @@ function renderAllShapes(){
     
     rightFrontTopLeg.rotate(-g_walkAngle + 15, 1, 0, 0);
 
+    rightFrontTopLeg.rotate(-g_specialAngle3, 0, 0, 1);
+
     rightFrontTopLeg.rotate(180, 1, 0, 0);
+
+    rightFrontTopLeg.translate(0, g_specialAngle2 / 400, 0);
+    rightFrontTopLeg.translate(0, -g_specialAngle3 / 400, 0);
 
     var rightFrontTopLegCoordinateMat = new Matrix4(rightFrontTopLeg);
 
@@ -483,6 +511,9 @@ function renderAllShapes(){
 
     leftBackTopLeg.rotate(180, 1, 0, 0);
 
+    leftBackTopLeg.translate(0, g_specialAngle2 / 400, 0);
+    leftBackTopLeg.translate(0, -g_specialAngle3 / 400, 0);
+
     var leftBackTopLegCoordinateMat = new Matrix4(leftBackTopLeg);
 
     leftBackTopLeg.scale(0.5, 0.5, 0.5);
@@ -496,7 +527,11 @@ function renderAllShapes(){
 
     rightBackTopLeg.translate(.25, 0.2, 0.8);
     rightBackTopLeg.rotate(-g_walkAngle - 20, 1, 0, 0);
+    rightBackTopLeg.rotate(-g_specialAngle3, 0, 0, 1);
     rightBackTopLeg.rotate(180, 1, 0, 0);
+
+    rightBackTopLeg.translate(0, g_specialAngle2 / 400, 0);
+    rightBackTopLeg.translate(0, -g_specialAngle3 / 400, 0);
 
     var rightBackTopLegCoordinateMat = new Matrix4(rightBackTopLeg);
 
